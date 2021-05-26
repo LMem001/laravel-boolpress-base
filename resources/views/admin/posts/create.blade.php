@@ -49,8 +49,8 @@
 				</label>
 			</div>
 		@endforeach
-	</div>
-	<div class="mt-3"> --}}
+	</div> --}}
+	<div class="mt-3">
 		<button type="submit" class="btn btn-primary">Crea</button>
 	</div>
 </form>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Post;
 use App\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -33,7 +34,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('admin.posts.create');
+        $tags = Tag::all();
+        return view('admin.posts.create', compact('tags'));
     }
 
     /**
@@ -49,9 +51,10 @@ class PostController extends Controller
 
         $request->validate($this->validation);
         $data = $request->all();
+        $data['published'] = !isset($data['published']) ? 0 : 1;
+        $data['slug'] = Str::slug($data['title'], '-');
         $newPost = Post::create($data);
-        $newPost->tags()->attach($data['tags']);
-        return redirect()->route('home');
+        return redirect()->route('posts.index');
     }
 
     /**
