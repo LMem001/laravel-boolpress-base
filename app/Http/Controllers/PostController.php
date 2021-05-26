@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Post;
 use App\Tag;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 
 class PostController extends Controller
@@ -53,7 +54,10 @@ class PostController extends Controller
         $data = $request->all();
         $data['published'] = !isset($data['published']) ? 0 : 1;
         $data['slug'] = Str::slug($data['title'], '-');
-        $newPost = Post::create($data);
+        
+        $newPost = Post::create($data); 
+
+        $newPost->tags()->attach($data['tags']);
         return redirect()->route('posts.index');
     }
 
