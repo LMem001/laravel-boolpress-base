@@ -3,10 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Post;
+use App\Tag;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
+    protected $validation = [
+        'date' => 'required|date',
+        'content' => 'required|string',
+        'image' => 'nullable|url'
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +23,7 @@ class PostController extends Controller
     {
         $posts = Post::all();
 
-        dd($posts);
+        return view('home', compact('posts'));
     }
 
     /**
@@ -26,7 +33,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.posts.create');
     }
 
     /**
@@ -37,7 +44,14 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validation = $this->validation;
+        $validation['title'] = 'required|string|max:255|unique:posts';
+
+        $request->validate($this->validation);
+        $data = $request->all();
+        $newPost = Post::create($data);
+        $newPost->tags()->attach($data['tags']);
+        return redirect()->route('home');
     }
 
     /**
@@ -65,7 +79,7 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request  $request   
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
