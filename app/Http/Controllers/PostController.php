@@ -25,7 +25,7 @@ class PostController extends Controller
     {
         $posts = Post::all();
 
-        return view('home', compact('posts'));
+        return view('admin.posts.index', compact('posts'));
     }
 
     /**
@@ -56,9 +56,10 @@ class PostController extends Controller
         $data['slug'] = Str::slug($data['title'], '-');
         
         $newPost = Post::create($data); 
-
-        $newPost->tags()->attach($data['tags']);
-        return redirect()->route('posts.index');
+        if(isset($data['tags'])) {
+            $newPost->tags()->attach($data['tags']);
+        }
+        return redirect()->route('admin.posts.index');
     }
 
     /**
@@ -69,7 +70,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        dd($post -> comments);
+        return view('admin.posts.show', compact('post'));
     }
 
     /**
@@ -78,9 +79,10 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        $tags = Tag::all();
+        return view('admin.posts.edit', compact('post', 'tags'));
     }
 
     /**
@@ -90,9 +92,24 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $post)
     {
-        //
+        $validation = $this->validation;
+        $validation['title'] = 'required|string|max:255|unique:posts';
+
+        $request->validate($this->validation);
+        $data = $request->all();
+        $data['published'] = !isset($data['published']) ? 0 : 1;
+
+        $data['slug'] = Str::slug($data['title'], '-');
+
+        $post->update($data);
+        if(!isset($data['tags'])) {
+            $data['tags'] = [];
+        }
+        $post->tags()->attach($data['tags']);
+
+        return redirect()->route('admin.posts.index');
     }
 
     /**
@@ -101,8 +118,9 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        //
+        $post -> delete();
+        return redirect()->route('posts.index');
     }
 }
