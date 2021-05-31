@@ -6,6 +6,8 @@ use App\Comment;
 use Illuminate\Http\Request;
 use App\Post;
 use App\Tag;
+use App\Mail\CommentMail;
+use Illuminate\Support\Facades\Mail;
 
 class BlogController extends Controller
 {
@@ -49,6 +51,8 @@ class BlogController extends Controller
         $newComment->post_id = $post->id;
 
         $newComment->save();
+
+        Mail::to('bla@boolpress.com')->send(new CommentMail());
 
         return back();
     }
