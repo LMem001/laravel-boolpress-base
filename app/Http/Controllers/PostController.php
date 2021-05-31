@@ -7,13 +7,14 @@ use App\Tag;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
     protected $validation = [
         'date' => 'required|date',
         'content' => 'required|string',
-        'image' => 'nullable|url'
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
     ];
 
     /**
@@ -54,6 +55,10 @@ class PostController extends Controller
         $data = $request->all();
         $data['published'] = !isset($data['published']) ? 0 : 1;
         $data['slug'] = Str::slug($data['title'], '-');
+
+        if ( isset($data['image']) ) {
+            $data['image'] = Storage::disk('public')->put('images', $data['image']);
+        }
         
         $newPost = Post::create($data); 
         if(isset($data['tags'])) {
@@ -102,6 +107,10 @@ class PostController extends Controller
         $data['published'] = !isset($data['published']) ? 0 : 1;
 
         $data['slug'] = Str::slug($data['title'], '-');
+
+        if ( isset($data['image']) ) {
+            $data['image'] = Storage::disk('public')->put('images', $data['image']);
+        }
 
         $post->update($data);
         if(!isset($data['tags'])) {
