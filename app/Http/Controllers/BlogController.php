@@ -52,7 +52,7 @@ class BlogController extends Controller
 
         $newComment->save();
 
-        Mail::to('bla@boolpress.com')->send(new CommentMail());
+        Mail::to('bla@boolpress.com')->send(new CommentMail($post));
 
         return back();
     }
